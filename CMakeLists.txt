@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 4.2)
+project(arkanoid)
+
+set(CMAKE_CXX_STANDARD 20)
+
+include(FetchContent)
+FetchContent_Declare(
+        raylib
+        URL https://github.com/raysan5/raylib/archive/master.tar.gz
+)
+
+add_executable(arkanoid main.cpp)
+
+FetchContent_MakeAvailable(raylib)
+
+target_link_libraries(arkanoid raylib)
