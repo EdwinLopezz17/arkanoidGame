@@ -4,26 +4,29 @@
 
 const int s_width = 900;
 const int s_height = 700;
-const int fil_lv1= 10;
-const int col_lv1= 20;
+const int fil_lv1= 14;
+const int col_lv1= 18;
 const int matriz_lv_1[fil_lv1][col_lv1] = {
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {0,0,0,1,1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,1},
+    {1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1},
+    {1,2,1,0,0,0,1,2,0,0,2,1,0,0,0,1,2,1},
+    {1,2,1,0,1,0,1,0,0,0,0,1,0,1,0,1,2,1},
+    {1,2,1,0,1,0,1,1,1,1,1,1,0,1,0,1,2,1},
+    {1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+    {2,1,1,0,1,1,1,0,0,0,0,1,1,1,0,1,1,2},
+    {2,2,1,0,0,0,0,0,1,1,0,0,0,0,0,1,2,2},
+    {2,2,1,1,1,1,0,0,1,1,0,0,1,1,1,1,2,2},
+    {2,2,2,2,2,1,0,0,0,0,0,0,1,2,2,2,2,2},
+    {2,2,2,2,2,1,1,0,0,0,0,1,1,2,2,2,2,2},
+    {2,2,2,2,2,2,1,1,0,0,1,1,2,2,2,2,2,2},
+    {2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2}
 };
 
 struct Block {
     float x, y;
     float width, height;
     Color color;
-    int tipe;
     int lifes;
     bool isActive = true;
 
@@ -41,26 +44,30 @@ Block blocks_lv1[fil_lv1][col_lv1];
 
 void resetLevel() {
     Block block;
-    block.width = s_width/(col_lv1+2);
-    block.height = 20;
+    block.width = (float)s_width / col_lv1;
+    block.height = 24;
+
     for (int i = 0; i < fil_lv1; i++) {
         for (int j= 0; j < col_lv1; j++) {
-            block.x = (j*block.width) + block.width;
-            block.y = i*block.height;
-            if (matriz_lv_1[i][j] == 0) {
-                block.tipe = 0;
+            block.isActive = true;
+            block.x = j * block.width;
+            block.y = i * block.height + 50;
+
+            int tipo = matriz_lv_1[i][j];
+
+            if (tipo == 0) {
                 block.color = RED;
                 block.lifes = 1;
-            } else if (matriz_lv_1[i][j] == 1) {
-                block.tipe = 1;
+            }else if (tipo == 1) {
                 block.color = GRAY;
                 block.lifes = 2;
+            }else if (tipo == 2) {
+                block.isActive = false;
             }
             blocks_lv1[i][j] = block;
         }
     }
 }
-
 
 void drawBlocks() {
     for (int i = 0; i < fil_lv1; i++) {
@@ -86,9 +93,9 @@ struct Circle {
     float x, y;
     float radius;
     Color color;
-    float total_speed = 200.0f;
-    float speed_x = 180;
-    float speed_y = total_speed - speed_x;
+    float total_speed = 300.0f;
+    float speed_x = GetRandomValue(-150, 150);
+    float speed_y = sqrt(pow(total_speed, 2) - pow(speed_x, 2)) * -1;
 
     void draw() {
         DrawCircle(x,y,radius,color);
@@ -119,14 +126,22 @@ struct Circle {
     }
 };
 
-bool collisionBallBlock(Circle c, Block b) {
+int collisionBallBlock(Circle c, Block b) {
     Rectangle rectBar = {b.x, b.y, b.width, b.height};
 
-    return CheckCollisionCircleRec({c.x, c.y}, c.radius, rectBar);
+    if (!CheckCollisionCircleRec({c.x, c.y}, c.radius, rectBar))
+        return 0;
+
+    //right - left
+    if (c.y >= b.y && c.y + c.radius <= b.y + b.height) return 1;
+    //up - down
+    if (c.x >= b.x && c.x + c.radius <= b.x + b.width) return 2;
+
+    return 2;
 }
 
 int main() {
-
+    srand(time(nullptr));
     InitWindow(s_width, s_height, "Arkanoid Project");
     SetTargetFPS(60);
 
@@ -134,14 +149,14 @@ int main() {
     bar.width = 150;
     bar.height = 15;
     bar.x = (s_width/2) - (bar.width/2);
-    bar.y = s_height - 200;
+    bar.y = s_height - 50;
     bar.color = WHITE;
     bar.speed = 500.0f;
 
     Circle ball{};
     ball.radius = 5;
     ball.x = (s_width/2) - ball.radius;
-    ball.y = s_height/2;
+    ball.y = s_height - 200;
     ball.color = ORANGE;
     ball.total_speed = 200.0f;
 
@@ -162,6 +177,8 @@ int main() {
         if (CheckCollisionCircleRec({ball.x, ball.y}, ball.radius, rectBar)) {
             float distanceToCenter = ball.x - (bar.x + bar.width/2);
             float relativePosition = distanceToCenter / (bar.width/2);
+            if (relativePosition > 1.0f) relativePosition = 0.9f;
+            if (relativePosition < -1.0f) relativePosition = -0.9f;
 
             ball.speed_x = relativePosition * ball.total_speed;
             ball.speed_y = sqrt(pow(ball.total_speed,2) - pow(ball.speed_x,2))*-1;
@@ -170,15 +187,23 @@ int main() {
         }
 
         for (int i = 0; i < fil_lv1; i++) {
+            bool choco = false;
             for (int j = 0; j < col_lv1; j++) {
                 if (!blocks_lv1[i][j].isActive) continue;
-                if (collisionBallBlock(ball, blocks_lv1[i][j])) {
+                int direcction = collisionBallBlock(ball, blocks_lv1[i][j]);
+
+                if (direcction > 0){
                     blocks_lv1[i][j].lifes--;
                     if (blocks_lv1[i][j].lifes <= 0) {
                         blocks_lv1[i][j].isActive = false;
                     }
+                    if (direcction == 1) ball.speed_x *= -1;
+                    else if (direcction == 2) ball.speed_y *= -1;
+                    choco = true;
+                    break;
                 }
             }
+            if (choco) break;
         }
 
         BeginDrawing();
