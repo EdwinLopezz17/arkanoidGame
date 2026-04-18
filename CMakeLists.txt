@@ -14,7 +14,9 @@ add_executable(arkanoid main.cpp
         src/Ball.cpp
         includes/Ball.h
         src/Paddle.cpp
-        includes/Paddle.h)
+        includes/Paddle.h
+        includes/GameManager.h
+        includes/GameObject.h)
 
 FetchContent_MakeAvailable(raylib)
 

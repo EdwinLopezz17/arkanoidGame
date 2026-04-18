@@ -12,7 +12,7 @@ Ball::Ball(int screenWidth, int screenHeight) {
 }
 
 void const Ball::draw() {
-    DrawCircle(x,y,radius,color);
+    DrawCircle(x, y, radius,color);
 }
 
 void Ball::move(float deltaTime, int screenWidth, int screenHeight) {

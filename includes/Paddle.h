@@ -1,20 +1,14 @@
-#ifndef ARKANOID_PADDLE_H
-#define ARKANOID_PADDLE_H
+#pragma once
 
-#include <raylib.h>
+#include "GameObject.h"
 
-class Paddle {
+class Paddle: public GameObject {
 public:
-    float x, y;
     float width, height;
-    Color color;
     float speed;
 
     Paddle(int screenWidth, int screenHeight);
-    void const draw();
+    void const draw() override;
     void move(float deltaTIme, int screenWidth);
 };
 
-
-
-#endif
